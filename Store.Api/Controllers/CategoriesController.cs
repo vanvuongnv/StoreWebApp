@@ -143,5 +143,44 @@ namespace Store.Api.Controllers
             return BadRequest(model);
         }
 
+        [HttpDelete]
+        [Route("delete-category/{id}")]
+        public IActionResult DeleteCategory(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                // validate 
+                var category = _context.Categories.FirstOrDefault(x => x.CategoryId == id);
+                if (category is null)
+                {
+                    return NotFound(new
+                    {
+                        state = false,
+                        msg = "Category Not Found"
+                    });
+                }
+                // delete
+                try
+                {
+                    //_context.Remove(category);
+                    _context.Entry(category).State = EntityState.Deleted;
+                    var result = _context.SaveChanges();
+                    if (result > 0)
+                    {
+                        return Ok(category);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(new
+                    {
+                        state = false,
+                        msg = ex.Message
+                    });
+                }
+            }
+            return BadRequest(model);
+        }
+
     }
 }

@@ -148,5 +148,44 @@ namespace Store.Api.Controllers
             }
             return BadRequest(model);
         }
+
+        [Route("delete-product/{id}")]
+        [HttpDelete]
+        public IActionResult DeleteProduct(int id)
+        {
+            if (ModelState.IsValid)
+            {
+                // valid product
+                var product = _context.Products.FirstOrDefault(x => x.ProductId == id);
+                if (product is null)
+                {
+                    return NotFound(id);
+                }
+
+                try
+                {
+                    _context.Remove(product);
+                    var result = _context.SaveChanges();
+                    if (result > 0)
+                    {
+                        return Ok(product);
+                    }
+                    return BadRequest(new
+                    {
+                        state = false,
+                        msg = "Có lỗi trong quá trình lưu dữ liệu"
+                    });
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(new
+                    {
+                        state = false,
+                        msg = ex.Message
+                    });
+                }
+            }
+            return BadRequest(id);
+        }
     }
 }
