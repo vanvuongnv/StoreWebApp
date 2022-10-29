@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Store.Api.Data;
 using Store.Api.Data.Entities;
 using Store.Api.Models;
@@ -98,6 +99,48 @@ namespace Store.Api.Controllers
                 }
             }
             return BadRequest(model);// 400
+        }
+
+        [HttpPut]
+        [Route("update-category/{id}")]
+        public IActionResult UpdateCategory(int id, [FromBody] CategoryDtoModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // validate 
+                var category = _context.Categories.FirstOrDefault(x => x.CategoryId == id);
+                if(category is null)
+                {
+                    return NotFound(new
+                    {
+                        state = false,
+                        msg = "Category Not Found"
+                    });
+                }
+
+                // update
+                category.CategoryName = model.CategoryName?.Trim();
+                try
+                {
+                    // _context.Update(category);
+                    _context.Entry(category).State = EntityState.Modified;
+                    var result = _context.SaveChanges();
+                    
+                    if(result > 0)
+                    {
+                        return Ok(category);
+                    }
+                }
+                catch(Exception ex)
+                {
+                    return BadRequest(new
+                    {
+                        state = false,
+                        msg = ex.Message
+                    });
+                }
+            }
+            return BadRequest(model);
         }
 
     }
