@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Store.Api.Data;
+using Store.Api.Models;
 
 namespace Store.Api.Controllers
 {
@@ -59,6 +60,15 @@ namespace Store.Api.Controllers
                 return NotFound(new { msg = "KO_TIM_THAY" });
             }
             return Ok(category);
+        }
+
+        [HttpPost]
+        [Route("add-category")]
+        public IActionResult AddCategory([FromBody] CategoryDtoModel model)
+        {
+            // validate input
+
+            return Ok();
         }
 
     }
