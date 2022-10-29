@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Store.Api.Data;
+using Store.Api.Data.Entities;
 using Store.Api.Models;
 
 namespace Store.Api.Controllers
@@ -67,8 +68,36 @@ namespace Store.Api.Controllers
         public IActionResult AddCategory([FromBody] CategoryDtoModel model)
         {
             // validate input
+            if (ModelState.IsValid)
+            {
+                // save to db
+                var entity = new Category()
+                {
+                    CategoryName = model.CategoryName?.Trim()
+                };
 
-            return Ok();
+                _context.Categories.Add(entity);
+                try
+                {
+                    int result = _context.SaveChanges();
+                    if (result > 0)
+                        return Ok(entity); // 200
+                    return BadRequest(new
+                    {
+                        state = false,
+                        msg = "Có lỗi trong quá trình lưu dữ liệu"
+                    });
+                }
+                catch(Exception ex)
+                {
+                    return BadRequest(new
+                    {
+                        state = false,
+                        msg = ex.Message
+                    });
+                }
+            }
+            return BadRequest(model);// 400
         }
 
     }
